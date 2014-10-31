@@ -20,8 +20,7 @@ prototype <- function (key, provider, environment) {
 
 # Binds a key
 define <- function (key, dependencies = NULL, callback, scope = prototype, environment = .environment) {
-  if (is.null (dependencies)) dependencies <- names (formals (callback));
-  environment[[ key ]]$dependencies <- dependencies;
+  environment[[ key ]]$dependencies <- if (is.null (dependencies)) names (formals (callback)) else dependencies;
   environment[[ key ]]$callback <- callback;
   environment[[ key ]]$scope <- scope;
 }
@@ -61,29 +60,19 @@ inject <- function (dependencies = NULL, callback, environment = .environment) {
   onError <- function (error) { errors[[ length(errors) + 1 ]] <- error; }
   parameters <- list ();
 
-  if (is.null (dependencies)) dependencies <- names (formals (callback));
-  for (key in dependencies)
-    if (is.null (environment[[ key ]]))
-      onError (c ("Unbound key ", key))
-    else tryCatch ({
-        parameters[[ key ]] <- environment[[ key ]]$scope (key, function () {
-                                                             inject (environment[[ key ]]$dependencies,
-                                                                     environment[[ key ]]$callback);
-                                                           }, environment);
+  for (key in if (is.null (dependencies)) names (formals (callback)) else dependencies) {
+    name <- if (!is.null (dependencies)) names (formals (callback))[ length (parameters) + 1 ] else key;
+    if (is.null (environment[[ key ]])) {
+      if (is.null (formals (callback)[[ name ]])) # Has no default value and no binding
+        onError (c ("Unbound dependency ", key));
+    } else tryCatch ({
+        parameters[[ name ]] <- environment[[ key ]]$scope (key, function () {
+                                                               inject (environment[[ key ]]$dependencies,
+                                                               environment[[ key ]]$callback);
+                                                             }, environment);
       }, error = onError, warning = onError);
+  }
 
   if (length (errors) == 0) do.call (callback, parameters)
   else stop (errors);
-
 }
-
-#define ('greeting', callback = function () { 'from the first R DI framework' });
-#define ('world', callback = function () { 'world' });
-#define ('hello', c ('world'), callback = function (world) { c ('hello', world) });
-#inject (callback = function (hello, greeting) { 
-#  print (c ("HELLO=", hello));
-#  print (c ("GREETING=", greeting));
-#});
-
-#shim ('http://cran.at.r-project.org/src/contrib/Archive/agrmt/agrmt_1.31.tar.gz');
-#inject ('modes', function (modes) { print (modes); });
