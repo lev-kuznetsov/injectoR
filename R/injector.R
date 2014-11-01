@@ -77,6 +77,8 @@ inject <- function (dependencies = NULL, callback, environment = .environment) {
   else stop (errors);
 }
 
-install <- function (key, version) { stop ("Not yet implemented"); }
+# Installs a module from repository
+install <- function (key, version, repository = NULL) { stop ("Not yet implemented"); }
 
-publish <- function (key, version) { stop ("Not yet implemented"); }
+# Publishes a module to repository
+publish <- function (key, version, repository = NULL) { stop ("Not yet implemented"); }
