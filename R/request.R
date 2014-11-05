@@ -27,13 +27,3 @@
   };
 }) ();
 
-source ("/Users/levk/src/injectoR/R/injector2.R");
-
-request ('http://cran.at.r-project.org/src/contrib/Archive/agrmt/agrmt_1.31.tar.gz',
-         callback = function (packages) {
-  shim ('agrmt', root = packages);
-  
-  inject (function (modes) {
-    modes (c (.1, .2, .3, .4, .5, .444, .555))
-  });
-});
