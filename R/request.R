@@ -1,12 +1,15 @@
-# TODO: Add comment
-# 
+# Reproducible package installer, much simpler alternative to packrat
+#
 # Author: levk
 
 # Exports request()
 (function () {
   .root = file.path (.libPaths () [1], "requester");
 
-  # Downloads and installs 
+  # Download and install packages from source, optionally takes a callback function
+  # injecting the package library paths. If the callback function is provided, the
+  # function is invoked and the result is returned, otherwise a list of library
+  # locations is returned
   request <<- function (..., callback = NULL, root = .root) {
     locations <- NULL;
 
@@ -26,4 +29,3 @@
     if (is.null (callback)) locations else callback (locations);
   };
 }) ();
-
