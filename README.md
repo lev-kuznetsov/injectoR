@@ -27,13 +27,11 @@ inject (function (factorial) {
 });
 ```
 
-You may shim legacy libraries; shimming libraries requires an install from source and allows
-installation (but not attachment) of different versions of the same library. Shimming a library
-will call define() for each of its globally exported variables. Shimming does not call library()
-so it will not export variables in the global namespace. Shimming and injecting is better than
-calling library() because it defines clear boundaries of dependency, and while an original
-result may depend on a library a derived will not have this explicit dependency allowing you
-to switch the original implementation. Also allows for easy unit testing
+Shimming a library will define each of its globally exported variables. Shimming does not call
+library() so it will not export variables in the global namespace. Shimming and injecting is
+better than calling library() because it defines clear boundaries of dependency, and while an
+original result may depend on a library a derived will not have this explicit dependency 
+allowing you to switch the original implementations at will
 
 ```
 shim ('agrmt');
