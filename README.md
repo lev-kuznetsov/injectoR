@@ -7,7 +7,7 @@ This is a very early draft and the interface may change. You may use the current
 the injector with the following:
 
 ```
-(function (...) { for (url in c (...)) tryCatch ({ download.file (url, 'source', method = 'curl'); source ('source'); }, finally = { unlink ('source'); }); }) ('https://raw.githubusercontent.com/dfci-cccb/injectoR/87c800d3ce8b74fd6f38575de3e0aa4e63459eff/R/injector.R');
+(function (...) { for (url in c (...)) tryCatch ({ download.file (url, 'source', method = 'curl'); source ('source'); }, finally = unlink ('source')); }) ('https://raw.githubusercontent.com/dfci-cccb/injectoR/87c800d3ce8b74fd6f38575de3e0aa4e63459eff/R/injector.R');
 ```
 ========
 
@@ -46,13 +46,11 @@ inject (function (modes) {
 You may optionally inject or provide a default value
 
 ```
-define ('greeting', function (name = "stranger") {
-  print (paste ("Greetings,", name));
-});
+define ('greeting', function (name = "stranger") print (paste ("Greetings,", name)));
 
 inject (function (greeting) {});
 
-define ('name', callback = function () { 'Bob' });
+define ('name', function () 'Bob');
 
 inject (function (greeting) {});
 ```
@@ -84,8 +82,8 @@ inject (function (counter, counter2) {
 Extensible!
 
 ```
-# Provide your own environment
-env <- list ();
+# Provide your own binding environment
+binder <- list ();
 
 define ('foo', function (bar = 'bar') {
   # ...
@@ -95,5 +93,5 @@ define ('foo', function (bar = 'bar') {
   # responsible for provisioning the dependency, the scope function
   # is responsible for appropriately calling it and caching result
   # when necessary
-}, env);
+}, binder);
 ```
