@@ -38,36 +38,36 @@
     function () if (is.null (value)) value <<- provider () else value;
   };
 
-  # Eager singleton scope for immediate evaluation at definition time
-  eager <<- function (key, provider) {
-    value <- provider ();
-    function () value;
-  };
-
   # Defines a binding within the binder specified formed of key, factory and scope
   define <<- function (key, factory, scope = default, binder = .binder)
     binder[[ key ]] <- scope (key, function () inject (factory, binder));
 
   # Defines an accumulative binding injectable as a list, returns the attachment function
-  # which accepts an injectable factory function to append to the binding
-  collection <<- function (key, scope = default, binder = .binder) {
+  # which accepts an injectable factory function to append to the binding, optionally
+  # accepts a combine parameter, default combine behavior is to merge with the parent
+  # binder
+  collection <<- function (key, scope = default, combine = function (this, parent) c (this, parent ()), binder = .binder) {
     factories <- NULL;
     define (key, function () {
       collection <- list ();
       for (factory in factories) collection [[ length (collection) + 1 ]] <- inject (factory, binder);
-      return (collection);
+      parent <- parent.env (binder);
+      combine (collection, function () if (exists (key, e = parent)) get (key, e = parent) () else list ());
     }, scope, binder);
     function (factory) factories <<- c (factories, factory);
   };
 
-  # Shims a package defining each exported variable
-  shim <<- function (package, prefix = '', suffix = '', root = NULL, binder = .binder, required = TRUE)
-    tryCatch (for (export in getNamespaceExports (loadNamespace (package, lib.loc = root)))
-               (function (export)
-                 define (paste (prefix, export, suffix, sep = ''),
-                         function () getExportedValue (space, export),
-                         singleton, binder)) (export),
-              error = function (error) if (required) stop (error) else return ());
+  # Shims legacy packages by defining all exported variables, optionally takes a callback
+  # in which case the result of the callback is returned, otherwise the injected binder is
+  # returned
+  shim <<- function (..., binder = .binder, callback) {
+    for (package in c (...))
+      if (requireNamespace (package))
+        for (export in getNamespaceExports (package))
+          (function (space, export)
+              define (export, function () getExportedValue (space, export), singleton, binder)) (loadNamespace (package), export);
+    if (missing (callback)) binder else inject (callback, binder);
+  };
 
   # Launches the injected callback
   inject <<- function (callback, binder = .binder) {
@@ -75,8 +75,8 @@
     errors <- list ();
 
     for (key in names (formals (callback)))
-      if (!is.null (binder[[ key ]]))
-        tryCatch (arguments[[ key ]] <- binder[[ key ]] (), error = function (chain) errors <<- c (errors, chain));
+      if (exists (key, e = binder))
+        tryCatch (arguments[[ key ]] <- get (key, e = binder) (), error = function (chain) errors <<- c (errors, chain));
 
     if (length (errors) == 0) do.call (callback, arguments) else stop (errors);
   };

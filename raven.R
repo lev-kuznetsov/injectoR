@@ -1,1 +1,1 @@
-project ('injectoR', '0.0.1-SNAPSHOT', script (sources = file.path ('R')));
+project ('injectoR', '0.0.2-SNAPSHOT', script (sources = file.path ('R')));
