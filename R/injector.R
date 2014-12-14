@@ -38,6 +38,8 @@
     function () if (is.null (value)) value <<- provider () else value;
   };
 
+  # Definition API
+
   # Defines a binding within the binder specified formed of key, factory and scope
   define <<- function (key, factory, scope = default, binder = .binder)
     binder[[ key ]] <- scope (key, function () inject (factory, binder));
@@ -58,16 +60,18 @@
   };
 
   # Shims legacy packages by defining all exported variables, optionally takes a callback
-  # in which case the result of the callback is returned, otherwise the injected binder is
-  # returned
+  # in which case the result of the injected callback is returned, otherwise the injected
+  # binder is returned
   shim <<- function (..., binder = .binder, callback) {
     for (package in c (...))
       if (requireNamespace (package))
         for (export in getNamespaceExports (package))
           (function (space, export)
-              define (export, function () getExportedValue (space, export), singleton, binder)) (loadNamespace (package), export);
+            define (export, function () getExportedValue (space, export), singleton, binder)) (loadNamespace (package), export);
     if (missing (callback)) binder else inject (callback, binder);
   };
+
+  # Injection
 
   # Launches the injected callback
   inject <<- function (callback, binder = .binder) {
@@ -76,7 +80,8 @@
 
     for (key in names (formals (callback)))
       if (exists (key, e = binder))
-        tryCatch (arguments[[ key ]] <- get (key, e = binder) (), error = function (chain) errors <<- c (errors, chain));
+        tryCatch (arguments[[ key ]] <- get (key, e = binder) (),
+                  error = function (chain) errors <<- c (errors, chain$message));
 
     if (length (errors) == 0) do.call (callback, arguments) else stop (errors);
   };
