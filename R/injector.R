@@ -63,11 +63,12 @@
   # in which case the result of the injected callback is returned, otherwise the injected
   # binder is returned
   shim <<- function (..., binder = .binder, callback) {
-    for (package in c (...))
-      if (requireNamespace (package))
-        for (export in getNamespaceExports (package))
-          (function (space, export)
-            define (export, function () getExportedValue (space, export), singleton, binder)) (loadNamespace (package), export);
+    for (name in c (...))
+      if (requireNamespace (name))
+        (function (space)
+          for (export in getNamespaceExports (space))
+            (function (export)
+              define (export, function () getExportedValue (space, export), singleton, binder)) (export)) (loadNamespace (name));
     if (missing (callback)) binder else inject (callback, binder);
   };
 
