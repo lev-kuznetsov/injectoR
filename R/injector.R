@@ -62,9 +62,9 @@
   # Shims legacy packages by defining all exported variables, optionally takes a callback
   # in which case the result of the injected callback is returned, otherwise the injected
   # binder is returned
-  shim <<- function (..., binder = .binder, callback) {
+  shim <<- function (..., binder = .binder, callback, quiet = TRUE) {
     for (name in c (...))
-      if (requireNamespace (name))
+      if (requireNamespace (name, quietly = quiet))
         (function (space)
           for (export in getNamespaceExports (space))
             (function (export)
