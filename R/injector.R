@@ -15,75 +15,74 @@
 # Dependency injection framework for R
 # 
 # Author: levk
-(function () {
-  # Binder
 
-  # Global binder
-  .binder <<- new.env (emptyenv ());
+# Binder
 
-  # Creates binders. Optionally accepts a callback function which will be called with the
-  # newly created binder and returns the result of the callback, if no callback is provided
-  # then returns the binder 
-  binder <<- function (parent = .binder, callback = function (binder) binder)
-    callback (new.env (parent));
+# Global binder
+.binder <- new.env (emptyenv ());
 
-  # Scopes
+# Creates binders. Optionally accepts a callback function which will be called with the
+# newly created binder and returns the result of the callback, if no callback is provided
+# then returns the binder 
+binder <- function (parent = .binder, callback = function (binder) binder)
+  callback (new.env (parent));
 
-  # The default scope, bindings of this scope are provisioned each time they are injected
-  default <<- function (key, provider) provider;
+# Scopes
 
-  # Singleton scope, singleton bindings are provisioned once and cached 
-  singleton <<- function (key, provider) {
-    value <- NULL;
-    function () if (is.null (value)) value <<- provider () else value;
-  };
+# The default scope, bindings of this scope are provisioned each time they are injected
+default <- function (key, provider) provider;
 
-  # Definition API
+# Singleton scope, singleton bindings are provisioned once and cached 
+singleton <- function (key, provider) {
+  value <- NULL;
+  function () if (is.null (value)) value <<- provider () else value;
+};
 
-  # Defines a binding within the binder specified formed of key, factory and scope
-  define <<- function (key, factory, scope = default, binder = .binder)
-    binder[[ key ]] <- scope (key, function () inject (factory, binder));
+# Definition API
 
-  # Defines an accumulative binding injectable as a list, returns the attachment function
-  # which accepts an injectable factory function to append to the binding, optionally
-  # accepts a combine parameter, default combine behavior is to merge with the parent
-  # binder
-  collection <<- function (key, scope = default, combine = function (this, parent) c (this, parent ()), binder = .binder) {
-    factories <- NULL;
-    define (key, function () {
-      collection <- list ();
-      for (factory in factories) collection [[ length (collection) + 1 ]] <- inject (factory, binder);
-      parent <- parent.env (binder);
-      combine (collection, function () if (exists (key, e = parent)) get (key, e = parent) () else list ());
-    }, scope, binder);
-    function (factory) factories <<- c (factories, factory);
-  };
+# Defines a binding within the binder specified formed of key, factory and scope
+define <- function (key, factory, scope = default, binder = .binder)
+  binder[[ key ]] <- scope (key, function () inject (factory, binder));
 
-  # Shims legacy packages by defining all exported variables, optionally takes a callback
-  # in which case the result of the injected callback is returned, otherwise the injected
-  # binder is returned
-  shim <<- function (..., binder = .binder, callback, quiet = TRUE) {
-    for (name in c (...))
-      if (requireNamespace (name, quietly = quiet))
-        (function (space)
-          for (export in getNamespaceExports (space))
-            (function (export)
-              define (export, function () getExportedValue (space, export), singleton, binder)) (export)) (loadNamespace (name));
-    if (missing (callback)) binder else inject (callback, binder);
-  };
+# Defines an accumulative binding injectable as a list, returns the attachment function
+# which accepts an injectable factory function to append to the binding, optionally
+# accepts a combine parameter, default combine behavior is to merge with the parent
+# binder
+collection <- function (key, scope = default, combine = function (this, parent) c (this, parent ()), binder = .binder) {
+  factories <- NULL;
+  define (key, function () {
+    collection <- list ();
+    for (factory in factories) collection [[ length (collection) + 1 ]] <- inject (factory, binder);
+    parent <- parent.env (binder);
+    combine (collection, function () if (exists (key, e = parent)) get (key, e = parent) () else list ());
+  }, scope, binder);
+  function (factory) factories <<- c (factories, factory);
+};
 
-  # Injection
+# Shims legacy packages by defining all exported variables, optionally takes a callback
+# in which case the result of the injected callback is returned, otherwise the injected
+# binder is returned
+shim <- function (..., binder = .binder, callback) {
+  for (name in c (...))
+    if (suppressPackageStartupMessages (requireNamespace (name)))
+      (function (space)
+        for (export in getNamespaceExports (space))
+          (function (export)
+            define (export, function () getExportedValue (space, export), singleton, binder)) (export)) (loadNamespace (name));
+  if (missing (callback)) binder else inject (callback, binder);
+};
 
-  # Launches the injected callback
-  inject <<- function (callback, binder = .binder) {
-    arguments <- list ();
-    errors <- list ();
+# Injection
 
-    for (key in names (formals (callback)))
-      if (exists (key, e = binder))
-        tryCatch (arguments[[ key ]] <- get (key, e = binder) (),
-                  error = function (chain) errors <<- c (errors, chain$message));
+# Launches the injected callback
+inject <- function (callback, binder = .binder) {
+  arguments <- list ();
+  errors <- list ();
 
-    if (length (errors) == 0) do.call (callback, arguments) else stop (errors);
-  };
-}) ();
+  for (key in names (formals (callback)))
+    if (exists (key, e = binder))
+      tryCatch (arguments[[ key ]] <- get (key, e = binder) (),
+                error = function (chain) errors <<- c (errors, chain$message));
+
+  if (length (errors) == 0) do.call (callback, arguments) else stop (errors);
+};
