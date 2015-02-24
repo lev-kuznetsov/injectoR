@@ -36,12 +36,20 @@ binder <- function (parent = .binder, callback = function (binder) binder)
 
 #' Singleton scope, bindings of this scope are provided once, on
 #' initial demand
+#' 
+#' @param key of the new binding
+#' @param provider unscoped delegate, no argument function responsible
+#' for provision
 #' @export
 singleton <- function (key, provider)
   (function (value) function () if (is.null (value)) value <<- provider () else value) (NULL);
 
 #' Default scope, bindings are provisioned each time a bean is
 #' injected
+#' 
+#' @param key of the new binding
+#' @param provider unscoped delegate, no argument function responsible
+#' for provision
 default <- function (key, provider) provider;
 
 #' Creates a key to factory binding
@@ -95,12 +103,12 @@ define <- function (key, factory, scope = default, binder = .binder)
 #' @export
 multibind <- function (key, scope = default,
                        combine = function (this, parent) c (this, parent ()), binder = .binder) 
-  if (exists (key, e = binder, inherits = FALSE)) attr (binder[[ key ]], 'multibind') else {
+  if (exists (key, envir = binder, inherits = FALSE)) attr (binder[[ key ]], 'multibind') else {
     providers <- list ();
     binder[[ key ]] <- scope (key, function () {
                                      parent <- parent.env (binder);
                                      combine (lapply (providers, function (provider) provider ()),
-                                              function () if (exists (key, e = parent)) get (key, e = parent) ()
+                                              function () if (exists (key, envir = parent)) get (key, envir = parent) ()
                                                           else list ())
                                    });
     attr (binder[[ key ]],
@@ -163,5 +171,5 @@ inject <- function (callback, binder = .binder)
            Filter (function (x) !is.null (x),
                    setNames (lapply (names (formals (callback)),
                                      function (key)
-                                       if (exists (key, e = binder)) get (key, e = binder) ()),
+                                       if (exists (key, envir = binder)) get (key, envir = binder) ()),
                              names (formals (callback)))));

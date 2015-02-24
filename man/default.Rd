@@ -7,6 +7,12 @@ injected}
 \usage{
 default(key, provider)
 }
+\arguments{
+\item{key}{of the new binding}
+
+\item{provider}{unscoped delegate, no argument function responsible
+for provision}
+}
 \description{
 Default scope, bindings are provisioned each time a bean is
 injected
