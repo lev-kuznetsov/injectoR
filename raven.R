@@ -1,1 +1,1 @@
-project ('injectoR', '0.0.7.9001', cran ());
+project ('injectoR', '0.1.0', cran ());
