@@ -50,7 +50,18 @@ inject (function (modes) {
 
 shim (s4 = 'stats4', callback = function (s4.AIC) {
   # do stuff with stats4's AIC()
-})
+});
+
+# Useful idiom for shimming libraries in an anonymous binder without
+# polluting the root binder (or whatever binder you're using)
+shim (b = 'base', callback = function (b.loadNamespace, b.getNamespaceExports) {
+  # Define something useful into your root binder
+  define ('exports', function () function (...) {
+    packages = c (...);
+    lapply (setNames (packages, packages), function (package)
+      getNamespaceExports (loadNamespace (package)));
+  });
+}, binder = binder ());
 ```
 
 You may optionally inject or provide a default value
