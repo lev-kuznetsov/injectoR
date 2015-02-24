@@ -54,12 +54,13 @@ shim (s4 = 'stats4', callback = function (s4.AIC) {
 
 # Useful idiom for shimming libraries in an anonymous binder without
 # polluting the root binder (or whatever binder you're using)
-shim (b = 'base', callback = function (b.loadNamespace, b.getNamespaceExports) {
+shim (b = 'base', s = 'stats',
+      callback = function (b.loadNamespace, b.getNamespaceExports, s.setNames) {
   # Define something useful into your root binder
   define ('exports', function () function (...) {
     packages = c (...);
-    lapply (setNames (packages, packages), function (package)
-      getNamespaceExports (loadNamespace (package)));
+    lapply (s.setNames (packages, packages), function (package)
+      b.getNamespaceExports (b.loadNamespace (package)));
   });
 }, binder = binder ());
 ```
