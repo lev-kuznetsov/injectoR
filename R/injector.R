@@ -170,11 +170,10 @@ inject <- function (callback, binder = .binder) {
   lapply (names (formals (callback)),
           function (key)
             if (exists (key, envir = binder))
-              makeActiveBinding (key,
-                                 (function (value)
-                                    function (x)
-                                      if (!missing (x)) value <<- x
-                                      else if (is.null (value)) value <<- get (key, envir = binder) ()
-                                      else value) (NULL), args));
+              makeActiveBinding (key, (function (value)
+                                          function (x)
+                                            if (!missing (x)) value <<- x
+                                            else if (is.null (value)) value <<- get (key, envir = binder) ()
+                                            else value) (NULL), args));
   eval (body (callback), args);
 }
