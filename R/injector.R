@@ -167,6 +167,12 @@ shim <- function (..., library.paths = .libPaths (), callback = function () bind
 #' @export
 inject <- function (callback, binder = .binder) {
   args <- new.env (parent = environment (callback));
+  args$missing <- function (x) {
+    key <- as.character (match.call ()$x);
+    if (!identical (parent.frame (), args)) missing (x)
+    else if (!(key %in% names (formals (callback)))) stop ("'missing' can only be used for arguments")
+    else !exists (key, envir = binder);
+  };
   lapply (names (formals (callback)),
           function (key)
             makeActiveBinding (key, (function (value)

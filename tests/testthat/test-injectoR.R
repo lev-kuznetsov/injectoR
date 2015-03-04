@@ -203,4 +203,26 @@ describe ("Injection", {
     define ('t', function (h) 3, b = b);
     expect_equal (inject (function (t) t, b), 3);
   });
+
+  it ("missing() should return true for unbound dependencies", {
+    expect_true (inject (function (q) missing (q)));
+    expect_true (inject (function (w = 2) missing (w)));
+  });
+
+  it ("missing() should return false for bound dependencies", {
+    b <- binder ();
+    define ('u', function () 4, b = b);
+    expect_false (inject (function (u) missing (u), b));
+  });
+
+  it ("missing() should revert back to original functionality in new environment", {
+    b <- binder ();
+    define ('g', function () {
+      t <- function (r) missing (r);
+      expect_true (t ());
+      expect_false (t (4));
+      TRUE;
+    }, b = b);
+    expect_true (inject (function (g) g, b));
+  });
 });
