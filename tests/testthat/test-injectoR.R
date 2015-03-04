@@ -173,9 +173,34 @@ describe ("Injection", {
     expect_equal (inject (function (foo) list (p = foo$p (), s = foo$s ()), b), list (p = 1, s = 2));
   });
 
-  it ("Should allow circular dependencies scope", {
+  it ("Should allow circular dependencies", {
     b <- binder ();
     define ('f', function (f) function (x) if (x < 1) 1 else x * f (x - 1), b = b);
     expect_equal (inject (function (f) f (6), b), 720);
+  });
+
+  it ("Should allow optional dependencies", {
+    b <- binder ();
+    define ('g', function (n = 'stranger', t) paste ('Hello', n), b = b);
+    expect_equal (inject (function (g) g, b), 'Hello stranger');
+    define ('n', function () 'Bob', b = b);
+    expect_equal (inject (function (g) g, b), 'Hello Bob');
+  });
+
+  it ("Should throw error on access unbound dependency", {
+    b <- binder ();
+    define ('t', function (h) h, b = b);
+    tryCatch ({
+      inject (function (t) t, b);
+      fail ('Did not throw on access to missing variable');
+    }, error = function (e) {
+      expect_equal (e$message, "Unbound dependency on h");
+    });
+  });
+
+  it ("Should not throw error on no access to unbound dependency", {
+    b <- binder ();
+    define ('t', function (h) 3, b = b);
+    expect_equal (inject (function (t) t, b), 3);
   });
 });

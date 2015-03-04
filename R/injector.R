@@ -169,11 +169,15 @@ inject <- function (callback, binder = .binder) {
   args <- new.env (parent = environment (callback));
   lapply (names (formals (callback)),
           function (key)
-            if (exists (key, envir = binder))
-              makeActiveBinding (key, (function (value)
-                                          function (x)
-                                            if (!missing (x)) value <<- x
-                                            else if (is.null (value)) value <<- get (key, envir = binder) ()
-                                            else value) (NULL), args));
+            makeActiveBinding (key, (function (value)
+                                       function (x) 
+                                         if (!missing (x)) value <<- x
+                                         else if (is.null (value))
+                                           value <<- if (exists (key, envir = binder))
+                                                       get (key, envir = binder) ()
+                                                     else if (formals (callback)[[ key ]] != '')
+                                                       formals (callback)[[ key ]]
+                                                     else stop (paste ("Unbound dependency on", key))
+                                         else value) (NULL), args));
   eval (body (callback), args);
 }
