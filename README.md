@@ -66,11 +66,11 @@ shim (b = 'base', s = 'stats',
 You may optionally inject or provide a default value
 
 ```R
-define ('greeting', function (name = "stranger") print (paste ("Greetings,", name)));
+define (greeting = function (name = "stranger") print (paste ("Greetings,", name)));
 
 inject (function (greeting) {});
 
-define ('name', function () 'Bob');
+define (name = function () 'Bob');
 
 inject (function (greeting) {});
 ```
@@ -78,7 +78,7 @@ inject (function (greeting) {});
 You may scope your bindings
 
 ```R
-define ('counter', function () {
+define (counter = function () {
   count <- 0;
   function () count <<- count + 1;
 }, singleton);
