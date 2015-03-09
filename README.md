@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/dfci-cccb/injectoR.svg?branch=master)](https://travis-ci.org/dfci-cccb/injectoR) [![Coverage Status](https://coveralls.io/repos/dfci-cccb/injectoR/badge.svg)](https://coveralls.io/r/dfci-cccb/injectoR)
+[![Build Status](https://travis-ci.org/dfci-cccb/injectoR.svg?branch=master)](https://travis-ci.org/dfci-cccb/injectoR) [![Build Status](https://ci.appveyor.com/api/projects/status/github/dfci-cccb/injectoR?svg=true)] [![Coverage Status](https://coveralls.io/repos/dfci-cccb/injectoR/badge.svg)](https://coveralls.io/r/dfci-cccb/injectoR)
 
 injectoR
 ========
