@@ -10,8 +10,6 @@ default(provider)
 \arguments{
 \item{provider}{unscoped delegate, no argument function responsible
 for provision}
-
-\item{key}{of the new binding}
 }
 \description{
 Default scope, bindings are provisioned each time a bean is

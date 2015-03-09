@@ -37,7 +37,6 @@ binder <- function (parent = .binder, callback = function (binder) binder)
 #' Singleton scope, bindings of this scope are provided once, on
 #' initial demand
 #' 
-#' @param key of the new binding
 #' @param provider unscoped delegate, no argument function responsible
 #' for provision
 #' @export
@@ -47,7 +46,6 @@ singleton <- function (provider)
 #' Default scope, bindings are provisioned each time a bean is
 #' injected
 #' 
-#' @param key of the new binding
 #' @param provider unscoped delegate, no argument function responsible
 #' for provision
 default <- function (provider) provider;
@@ -176,8 +174,7 @@ inject <- function (callback, binder = .binder) {
                                        function (x) 
                                          if (!missing (x)) value <<- x
                                          else if (is.null (value))
-                                           value <<- if (exists (key, envir = binder))
-                                                       get (key, envir = binder) ()
+                                           value <<- if (exists (key, envir = binder)) get (key, envir = binder) ()
                                                      else if (formals (callback)[[ key ]] != '')
                                                        formals (callback)[[ key ]]
                                                      else stop (paste ("Unbound dependency on", key))
