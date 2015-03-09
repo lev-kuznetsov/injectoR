@@ -41,7 +41,7 @@ binder <- function (parent = .binder, callback = function (binder) binder)
 #' @param provider unscoped delegate, no argument function responsible
 #' for provision
 #' @export
-singleton <- function (key, provider)
+singleton <- function (provider)
   (function (value) function () if (is.null (value)) value <<- provider () else value) (NULL);
 
 #' Default scope, bindings are provisioned each time a bean is
@@ -50,14 +50,14 @@ singleton <- function (key, provider)
 #' @param key of the new binding
 #' @param provider unscoped delegate, no argument function responsible
 #' for provision
-default <- function (key, provider) provider;
+default <- function (provider) provider;
 
 #' Creates a key to factory binding
 #' 
-#' @param key injectable bean identifier, this name is matched to a
-#' parameter name during injection
-#' @param factory responsible for provisioning of the bean, a factory
-#' may accept any number of arguments in which case the framework will
+#' @param ... injectable bean identifier to factory mappings, the key
+#' is the name is matched to a parameter name during injection, the
+#' factory responsible for provisioning of the bean, a factory may
+#' accept any number of arguments in which case the framework will
 #' attempt to inject the argument if a binding to the parameter name
 #' exists; if it does not, that argument will not be injected, in
 #' which case it is the factory's responsibility to deal with a
@@ -73,8 +73,12 @@ default <- function (key, provider) provider;
 #' @param binder for this binding, if omitted the new binding is added
 #' to the root binder
 #' @export
-define <- function (key, factory, scope = default, binder = .binder)
-  binder[[ key ]] <- scope (key, function () inject (factory, binder));
+define <- function (..., scope = default, binder = .binder) {
+  bindings <- list (...);
+  lapply (names (bindings), function (key)
+    binder[[ key ]] <- scope (function () inject (bindings[[ key ]], binder)));
+  binder;
+};
 
 #' Aggregates multiple factories under one key
 #' 
@@ -104,12 +108,12 @@ multibind <- function (key, scope = default,
                        combine = function (this, parent) c (this, parent ()), binder = .binder) 
   if (exists (key, envir = binder, inherits = FALSE)) attr (binder[[ key ]], 'multibind') else {
     providers <- list ();
-    binder[[ key ]] <- scope (key, function () {
-                                     parent <- parent.env (binder);
-                                     combine (lapply (providers, function (provider) provider ()),
-                                              function () if (exists (key, envir = parent)) get (key, envir = parent) ()
-                                                          else list ())
-                                   });
+    binder[[ key ]] <- scope (function () {
+                                parent <- parent.env (binder);
+                                combine (lapply (providers, function (provider) provider ()),
+                                         function () if (exists (key, envir = parent)) get (key, envir = parent) ()
+                                                     else list ())
+                              });
     attr (binder[[ key ]],
           'multibind') <- function (..., scope = default) {
                             factories <- list (...);
@@ -118,9 +122,7 @@ multibind <- function (key, scope = default,
                                                      function (i) (
                                                        function (name, factory){
                                                          force (factory);
-                                                         scope (force (name),
-                                                                function ()
-                                                                  inject (factory, binder))
+                                                         scope (function () inject (factory, binder))
                                                        }) (names (factories)[ i ], factories[[ i ]])));
                           };
   };
@@ -139,20 +141,15 @@ multibind <- function (key, scope = default,
 #' @param binder for this shim
 #' @return result of the callback if specified, binder otherwise
 #' @export
-shim <- function (..., library.paths = .libPaths (), callback = function () binder, binder = .binder) (
-  function (packages) {
-    lapply (1:length (packages),
-            function (i)
-              if (requireNamespace (packages[[ i ]], lib.loc = library.paths)) (
-                function (namespace)
-                  lapply (getNamespaceExports (namespace),
-                          function (export, value = getExportedValue (namespace, export))
-                            define (if (is.null (names (packages)) || "" == names (packages)[ i ]) export
-                                    else paste (names (packages)[ i ], export, sep = '.'),
-                                    function () value, singleton, binder))) (loadNamespace (packages[[ i ]],
-                                                                             lib.loc = library.paths)));
-    inject (callback, binder);
-  }) (list (...));
+shim <- function (..., library.paths = .libPaths (), callback = function () binder, binder = .binder) {
+  exports <- unlist (lapply (list (...), function (package)
+    if (requireNamespace (package, lib.loc = library.paths)) (function (namespace)
+      lapply (setNames (nm = getNamespaceExports (namespace)),
+              function (export)
+                getExportedValue (namespace, export))) (loadNamespace(package, lib.loc = library.paths))));
+  lapply (1:length (exports), function (i) binder[[ names (exports)[ i ] ]] <- singleton (function () exports[[ i ]]));
+  inject (callback, binder);
+}
 
 #' Injects the callback function
 #' 

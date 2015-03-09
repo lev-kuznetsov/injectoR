@@ -5,13 +5,13 @@
 \title{Singleton scope, bindings of this scope are provided once, on
 initial demand}
 \usage{
-singleton(key, provider)
+singleton(provider)
 }
 \arguments{
-\item{key}{of the new binding}
-
 \item{provider}{unscoped delegate, no argument function responsible
 for provision}
+
+\item{key}{of the new binding}
 }
 \description{
 Singleton scope, bindings of this scope are provided once, on
