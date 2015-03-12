@@ -55,11 +55,9 @@ shim (s4 = 'stats4', callback = function (s4.AIC) {
 shim (b = 'base', s = 'stats',
       callback = function (b.loadNamespace, b.getNamespaceExports, s.setNames) {
   # Define something useful into your root binder
-  define (exports = function () function (...) {
-    packages = c (...);
-    lapply (s.setNames (nm = packages), function (package)
-      b.getNamespaceExports (b.loadNamespace (package)));
-  });
+  define (exports = function () function (...)
+    lapply (s.setNames (nm = c (...)), function (package)
+      b.getNamespaceExports (b.loadNamespace (package))));
 }, binder = binder ());
 ```
 
