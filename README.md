@@ -2,13 +2,10 @@
 
 injectoR
 ========
-
 Dependency injection for R
 
 You can install the project directly via github with ```devtools::install_github ('dfci-cccb/injectoR')```
-
 ========
-
 Injector is meant to ease development making it clear what parts of your script depend on what
 other functionality without cluttering your interface
 
