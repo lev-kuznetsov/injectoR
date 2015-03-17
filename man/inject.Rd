@@ -22,4 +22,7 @@ result of the injected callback evaluation
 \description{
 Injects the callback function
 }
+\examples{
+inject (function (two) two, define (two = function () 2, binder = binder ()))
+}
 
