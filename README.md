@@ -14,5 +14,3 @@ Check out http://dfci-cccb.github.io/injectoR/ for a primer
 
 Licensed under LGPL3
 
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/lev-kuznetsov/injector/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
-
