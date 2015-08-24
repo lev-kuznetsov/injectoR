@@ -184,7 +184,7 @@ inject <- function (callback, binder = .binder) {
   args$missing <- function (x) {
     key <- base::as.character (base::match.call ()$x);
     if (!base::identical (base::parent.frame (), args)) base::missing (x)
-    else if (!match (key, base::names (base::formals (callback)), nomatch = 0) > 0)
+    else if (!base::match (key, base::names (base::formals (callback)), nomatch = 0) > 0)
       base::stop ("'missing' can only be used for arguments")
     else !base::exists (key, envir = binder);
   };
