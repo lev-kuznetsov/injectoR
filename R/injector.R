@@ -121,7 +121,8 @@ multibind <- function (key, scope = default,
     });
     base::attr (binder[[ key ]], 'multibind') <- function (..., scope = default) {
       factories <- base::list (...);
-      providers <<- base::c (providers, base::lapply (setNames (1:length (factories), base::names (factories)), function (i) (
+      providers <<- base::c (providers, base::lapply (stats::setNames (1:length (factories),
+                                                      base::names (factories)), function (i) (
         function (factory) scope (function () inject (factory, binder))) (factories[[ i ]])));
     };
   };

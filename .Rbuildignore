@@ -1,0 +1,4 @@
+^\.travis\.yml$
+^cran-comments\.md$
+^LICENSE$
+^appveyor\.yml$
