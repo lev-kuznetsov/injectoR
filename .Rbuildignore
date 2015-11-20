@@ -2,3 +2,6 @@
 ^cran-comments\.md$
 ^LICENSE$
 ^appveyor\.yml$
+^README.md$
+^.gitignore$
+^.project$
