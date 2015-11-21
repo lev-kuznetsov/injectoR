@@ -5,11 +5,6 @@ injectoR
 
 Dependency injection for R
 
-You can install the project directly via github with
-`devtools::install_github ('dfci-cccb/injectoR')`
-
-========
-
 Check out http://dfci-cccb.github.io/injectoR/ for a primer
 
 Licensed under LGPL3
