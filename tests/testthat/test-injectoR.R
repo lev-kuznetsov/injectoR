@@ -21,7 +21,7 @@ describe ("Binder factory", {
 });
 
 describe ("Singleton scope", {
-  it ("Should be a function accepting key and provider", {
+  it ("Should be a function accepting provider", {
     expect_true (is.function (singleton));
     expect_equal (names (formals (singleton)), 'provider');
   });
