@@ -42,7 +42,7 @@ describe ("Singleton scope", {
 });
 
 describe ("Default scope", {
-  it ("Should be a function accepting key and provider", {
+  it ("Should be a function accepting provider", {
     expect_true (is.function (default));
     expect_equal (names (formals (default)), 'provider');
   });
