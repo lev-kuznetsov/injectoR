@@ -1,6 +1,6 @@
 Package: injectoR
 Version: 0.2.4
-Date: 2015-11-23
+Date: 2015-11-25
 Title: R Dependency Injection
 Author: Lev Kuznetsov
 Maintainer: Lev Kuznetsov <levk@jimmy.harvard.edu>
