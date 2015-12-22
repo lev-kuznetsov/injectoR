@@ -69,9 +69,9 @@ default <- function (provider) provider;
 #' will be provisioned each time injection is requested; injectoR also
 #' ships with with the singleton scope which will provide once and
 #' cache the bean for subsequent calls. Interface allows for custom
-#' scoping, the scope parameter must be a function accepting key (name)
-#' and the provider - the wrapped injected factory call - a function
-#' accepting no parameters responsible for actual provisioning
+#' scoping, the scope parameter must be a function accepting the
+#' provider - the wrapped injected factory call - a function accepting
+#' no parameters responsible for actual provisioning
 #' @param binder for this binding, if omitted the new binding is added
 #' to the root binder
 #' @export
@@ -92,8 +92,8 @@ define <- function (..., scope = default, binder = .binder) {
 #' will be provisioned each time injection is requested; injectoR also
 #' ships with with the singleton scope which will provide once and
 #' cache the bean for subsequent calls. Interface allows for custom
-#' scoping, the scope parameter must be a function accepting key (name)
-#' and the provider - the wrapped injected factory call - a function
+#' scoping, the scope parameter must be a function accepting the
+#' provider - the wrapped injected factory call - a function
 #' accepting no parameters responsible for actual provisioning
 #' @param combine aggregation procedure for combination of context
 #' and inherited values, a function accepting a list of injectable
@@ -121,10 +121,8 @@ multibind <- function (key, scope = default,
     });
     base::attr (binder[[ key ]], 'multibind') <- function (..., scope = default)
       providers <<- base::c (providers,
-                             base::lapply (base::list (...), function (factory) {
-        base::force (factory);
-        scope (function () inject (factory, binder));
-      }));
+                             base::lapply (base::list (...), function (factory)
+        scope (function () inject (factory, binder))));
   };
 
 #' Shims libraries
